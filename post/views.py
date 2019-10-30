@@ -36,3 +36,9 @@ class PostViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(thread_queryset.union(replies), many=True)
             return Response(serializer.data)
         return Response("thread doesn't exist")
+
+    @action(detail=False)
+    def index(self, request):
+        queryset = Post.objects.filter(is_thread=True).order_by('-updated_at')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
