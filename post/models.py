@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 # MAX_UPLOAD_SIZE = settings.MAX_UPLOAD_SIZE
 # ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSION
 
@@ -11,7 +12,7 @@ class PostManager(models.Manager):
 
         errors = []
 
-        #     TODO: add errors for starting a thread : image and yada yada
+        # TODO: add errors for starting a thread : image and yada yada
 
         if len(errors) < 1:
             return Post.objects.create(
@@ -28,8 +29,9 @@ class PostManager(models.Manager):
 
         errors = []
 
-        #     TODO: add errors for starting a thread : image and yada yada
+        # TODO: add errors for starting a thread : image and yada yada
         # TODO: sage
+
         if len(errors) < 1:
             post = Post.objects.create(
                 content=post_data['content'],
@@ -62,3 +64,6 @@ class Post(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+# TODO add another model for archive
+# TODO set limit for amount of threads if thread goes to the bottom it is dead

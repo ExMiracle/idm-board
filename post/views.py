@@ -1,8 +1,9 @@
 from rest_framework import viewsets
-from .models import Post
-from .serializers import PostSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from .models import Post
+from .serializers import PostSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -16,19 +17,22 @@ class PostViewSet(viewsets.ModelViewSet):
     def new_thread(self, request):
         thread = Post.objects.new_thread(request.POST, request.FILES)
         return Response('success')
-#         TODO: check if isinstance(list, post): if it is error
+
+    #         TODO: check if isinstance(list, post): if it is error
 
     @action(detail=True, methods=['post'])
     def new_reply(self, request, pk=None):
         post = Post.objects.new_reply(request.POST, request.FILES, self.kwargs['pk'])
         return Response('success')
-#         TODO: check if isinstance(list, post): if it is error
+
+    #         TODO: check if isinstance(list, post): if it is error
 
     @action(detail=True)
     def query(self, request, pk=None):
-        queryset = Post.objects.filter(id=self.kwargs['pk'])
-        # return queryset
-
-        # return JsonResponse({queryset})
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        thread_queryset = Post.objects.filter(id=self.kwargs['pk'])
+        if thread_queryset:
+            thread = Post.objects.get(id=self.kwargs['pk'])
+            replies = thread.replies.all()
+            serializer = self.get_serializer(thread_queryset.union(replies), many=True)
+            return Response(serializer.data)
+        return Response("thread doesn't exist")
