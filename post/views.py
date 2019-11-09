@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from .models import Post
 from .serializers import PostSerializer
-
+from itertools import chain
 
 class PostViewSet(viewsets.ModelViewSet):
     """
@@ -37,8 +37,26 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return Response("thread doesn't exist")
 
+    # TODO: do catalog with this api endpoint
     @action(detail=False)
-    def index(self, request):
+    def catalog(self, request):
         queryset = Post.objects.filter(is_thread=True).order_by('-updated_at')
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(detail=False)
+    def index(self, request):
+        queryset = Post.objects.filter(is_thread=True).order_by('-updated_at')
+        if queryset:
+            result = []
+            for thread in queryset:
+                thread = Post.objects.filter(id=thread.id)
+                thread_replies = thread[0].replies.all()[:3]
+                # container.extend(thread).extend(thread_replies)
+                # if thread_replies:
+                thread_with_replies = list(chain(thread, thread_replies))
+                result.extend(thread_with_replies)
+
+            serializer = self.get_serializer(result, many=True)
+            return Response(serializer.data)
+        return Response('No threads yet')
